@@ -25,6 +25,11 @@ err_exit () {
 	exit 128
 }
 
+# Make sure script runs with uid 0
+if [ "$(id -u)" != 0 ]; then
+  err_exit "This script must be run as root!"
+fi
+
 if [ $# -ne 1 ]; then
 	# If temperature wasn't given, then print a message and exit.
 	echo "Please supply a maximum desired temperature in Celsius." 1>&2
