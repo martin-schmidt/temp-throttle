@@ -30,6 +30,14 @@ if [ "$(id -u)" != 0 ]; then
   err_exit "This script must be run as root"
 fi
 
+# Make sure script is only executed one time
+PID=$$
+LOCK_FILE=/var/lock/${0}.pid
+if [ -e $LOCK_FILE ] && kill -0 $(cat $LOCK_FILE) 2>/dev/null; then
+  err_exit "Another instance is running with PID $(cat $LOCK_FILE)"
+fi
+echo -n $PID > $LOCK_FILE
+
 # Load .conf
 if test -f $HOME/.temp_throttle.conf; then
 	. $HOME/.temp_throttle.conf
