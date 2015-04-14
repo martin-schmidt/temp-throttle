@@ -25,6 +25,11 @@ err_exit () {
 	exit 128
 }
 
+# Check if script is running with uid 0
+if [ "$(id -u)" != 0 ]; then
+  err_exit "This script must be run as root"
+fi
+
 # Load .conf
 if test -f $HOME/.temp_throttle.conf; then
 	. $HOME/.temp_throttle.conf
