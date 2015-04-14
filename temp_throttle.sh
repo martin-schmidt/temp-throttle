@@ -32,7 +32,7 @@ fi
 
 # Make sure script is only executed one time
 PID=$$
-LOCK_FILE=/var/lock/${0}.pid
+LOCK_FILE=/var/lock/$(basename $0).pid
 if [ -e $LOCK_FILE ] && kill -0 $(cat $LOCK_FILE) 2>/dev/null; then
   err_exit "Another instance is running with PID $(cat $LOCK_FILE)"
 fi
