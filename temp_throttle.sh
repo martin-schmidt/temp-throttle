@@ -25,6 +25,9 @@ err_exit () {
 	exit 128
 }
 
+# Exit on signal
+trap "exit" 15
+
 # Check if script is running with uid 0
 if [ "$(id -u)" != 0 ]; then
   err_exit "This script must be run as root"
