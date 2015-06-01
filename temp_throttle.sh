@@ -25,16 +25,38 @@ err_exit () {
 	exit 128
 }
 
-if [ $# -ne 1 ]; then
-	# If temperature wasn't given, then print a message and exit.
+# Exit on signal
+trap "exit" 15
+
+# Check if script is running with uid 0
+if [ "$(id -u)" != 0 ]; then
+  err_exit "This script must be run as root"
+fi
+
+# Make sure script is only executed one time
+PID=$$
+LOCK_FILE=/var/lock/$(basename $0).pid
+if [ -e $LOCK_FILE ] && kill -0 $(cat $LOCK_FILE) 2>/dev/null; then
+  err_exit "Another instance is running with PID $(cat $LOCK_FILE)"
+fi
+echo -n $PID > $LOCK_FILE
+
+# Load .conf
+if test -f $HOME/.temp_throttle.conf; then
+	. $HOME/.temp_throttle.conf
+elif test -f /etc/temp_throttle.conf; then
+	. /etc/temp_throttle.conf
+fi
+
+if [ $# -ne 1 ] && [ -z $MAX_TEMP ]; then
+	# If temperature wasn't given or set by .conf, then print a message and exit.
 	echo "Please supply a maximum desired temperature in Celsius." 1>&2
 	echo "For example:  ${0} 60" 1>&2
 	exit 2
-else
+elif [ $# -eq 1 ]; then
 	#Set the first argument as the maximum desired temperature.
 	MAX_TEMP=$1
 fi
-
 
 ### START Initialize Global variables.
 
